@@ -1,7 +1,7 @@
 # Conversor Bananal
 
 ## Objetivos
-Insira o objetivo para o agente de IA
+Converter o tipo de arquivo para outro, inserindo o arquivo original no site
 
 ### Stack Tecnlógico
 - Backend: PHP estruturado com sessões nativas
