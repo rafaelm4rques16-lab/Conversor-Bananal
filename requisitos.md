@@ -12,7 +12,7 @@ Converter o tipo de arquivo para outro, inserindo o arquivo original no site, ti
 Manter palheta de cores amarelada e elementos gráficos de banana pelo site, semelhante a https://bananajobs.com.br/
 Função de enviar o arquivo semelhante a do https://convertio.co/pt/ onde o usuário pode tanto jogar o arquivo no site, quanto enviar por um botão.
 Usuário seleciona o arquivo, o sistema detecta o tipo do arquivo, o sistema faz sugestões de tipo de arquivo que ele pode fazer a conversão.
-após o usuário escolher o tipo de arquivo o sistema transforma o arquivo para o tipo escolhido.
+após o usuário escolher o tipo de arquivo o sistema transforma o arquivo para o tipo escolhido. Além disso como no https://convertio.co/pt/ deve ter um menu do lado.
 
 ##### Regras Globais
 - Use sempre PDO para conexão e queries no MySQL para evitar SQL Injections
