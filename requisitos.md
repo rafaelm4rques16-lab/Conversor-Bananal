@@ -1,7 +1,7 @@
 # Conversor Bananal
 
 ## Objetivos
-Converter o tipo de arquivo para outro, inserindo o arquivo original no site
+Converter o tipo de arquivo para outro, inserindo o arquivo original no site, tipo https://convertio.co/pt/
 
 ### Stack Tecnlógico
 - Backend: PHP estruturado com sessões nativas
@@ -9,10 +9,10 @@ Converter o tipo de arquivo para outro, inserindo o arquivo original no site
 - Frontend: HTML5, PHP, CSS, Tailwind CSS
 
 #### Regras de negócio (CORE)
-Tratar senhas de usuários com hash bcript
-O sistema deve ter uma página de históricos e manter sempre os logs de qualquer alteração feita por 
-qualquer usuário, para auditorias futuras.
-insira as regras de negócio 
+Manter palheta de cores amarelada e elementos gráficos de banana pelo site, semelhante a https://bananajobs.com.br/
+Função de enviar o arquivo semelhante a do https://convertio.co/pt/ onde o usuário pode tanto jogar o arquivo no site, quanto enviar por um botão.
+Usuário seleciona o arquivo, o sistema detecta o tipo do arquivo, o sistema faz sugestões de tipo de arquivo que ele pode fazer a conversão.
+após o usuário escolher o tipo de arquivo o sistema transforma o arquivo para o tipo escolhido.
 
 ##### Regras Globais
 - Use sempre PDO para conexão e queries no MySQL para evitar SQL Injections
