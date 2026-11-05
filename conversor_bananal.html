@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor Bananal 🍌 (Versão Standalone Offline)</title>
+  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍌</text></svg>">
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- JSZip para downloads em lote -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <style>
+    @keyframes banana-wiggle {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-6deg); }
+      75% { transform: rotate(6deg); }
+    }
+    .hover-wiggle:hover { animation: banana-wiggle 0.5s ease-in-out infinite alternate; }
+    .dropzone-active {
+      border-color: #ca8a04 !important;
+      background-color: #fef9c3 !important;
+      transform: scale(1.01);
+    }
+    .banana-stripes {
+      background-image: linear-gradient(45deg, rgba(255,255,255,0.3) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.3) 75%, transparent 75%, transparent);
+      background-size: 1rem 1rem;
+      animation: move-stripes 1s linear infinite;
+    }
+    @keyframes move-stripes {
+      from { background-position: 1rem 0; }
+      to { background-position: 0 0; }
+    }
+  </style>
+</head>
+<body class="bg-yellow-50/50 text-stone-900 font-sans min-h-screen flex flex-col selection:bg-yellow-300 selection:text-stone-900">
+
+  <!-- ========================================================================= -->
+  <!-- Sidebar Retrátil Estilo Convertio                                          -->
+  <!-- ========================================================================= -->
+  <div id="side-overlay" class="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-40 hidden lg:hidden"></div>
+
+  <aside id="sidebar" class="fixed top-0 bottom-0 left-0 w-72 sm:w-80 bg-yellow-50 border-r-2 border-yellow-300 z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col shadow-xl lg:shadow-none">
+    <div class="p-5 border-b border-yellow-200 flex items-center justify-between bg-yellow-100/70">
+      <div class="flex items-center gap-2.5">
+        <span class="text-3xl hover-wiggle cursor-pointer select-none">🍌</span>
+        <div>
+          <h2 class="text-sm font-black text-stone-900 tracking-tight leading-none">CONVERSOR BANANAL</h2>
+          <span class="text-[10px] font-bold text-yellow-800 uppercase tracking-wider">Modo Offline 100% Client-Side</span>
+        </div>
+      </div>
+      <button id="btn-close-side" class="lg:hidden p-1.5 text-stone-600 hover:text-stone-900 rounded-lg hover:bg-yellow-200">✕</button>
+    </div>
+
+    <!-- Navegação e Atalhos Rápidos -->
+    <div class="p-4 border-b border-yellow-200 space-y-1">
+      <p class="text-[11px] font-black uppercase text-yellow-900 tracking-wider px-2 mb-2">Atalhos Populares</p>
+      
+      <button onclick="triggerQuickFormat('png', 'webp')" class="w-full text-left flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-stone-800 hover:bg-yellow-200/60 transition">
+        <span>PNG ➔ WEBP</span>
+        <span class="text-[10px] bg-yellow-200 px-1.5 py-0.5 rounded text-yellow-900">Web</span>
+      </button>
+
+      <button onclick="triggerQuickFormat('jpg', 'png')" class="w-full text-left flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-stone-800 hover:bg-yellow-200/60 transition">
+        <span>JPG ➔ PNG</span>
+        <span class="text-[10px] bg-yellow-200 px-1.5 py-0.5 rounded text-yellow-900">Foto</span>
+      </button>
+
+      <button onclick="triggerQuickFormat('csv', 'json')" class="w-full text-left flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-stone-800 hover:bg-yellow-200/60 transition">
+        <span>CSV ➔ JSON</span>
+        <span class="text-[10px] bg-yellow-200 px-1.5 py-0.5 rounded text-yellow-900">Dados</span>
+      </button>
+
+      <button onclick="triggerQuickFormat('txt', 'html')" class="w-full text-left flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-stone-800 hover:bg-yellow-200/60 transition">
+        <span>TXT ➔ HTML</span>
+        <span class="text-[10px] bg-yellow-200 px-1.5 py-0.5 rounded text-yellow-900">Texto</span>
+      </button>
+    </div>
+
+    <!-- Histórico Local -->
+    <div class="flex-1 overflow-y-auto p-4 flex flex-col">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <h3 class="text-xs font-black uppercase text-stone-800 tracking-wider flex items-center gap-1.5">
+          <span>🕒</span> Histórico Local
+        </h3>
+        <button id="btn-clear-local-hist" class="text-[11px] font-bold text-red-600 hover:underline">Limpar</button>
+      </div>
+
+      <div id="local-history-container" class="space-y-2 flex-1 text-xs">
+        <div class="text-center py-8 text-stone-400">
+          Nenhuma conversão offline recente.
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 border-t border-yellow-200 bg-yellow-100/40 text-center text-xs text-stone-600">
+      ⚡ Processamento direto no seu navegador sem enviar arquivos para a internet!
+    </div>
+  </aside>
+
+  <!-- ========================================================================= -->
+  <!-- Conteúdo Principal                                                        -->
+  <!-- ========================================================================= -->
+  <div class="lg:pl-72 sm:lg:pl-80 flex-1 flex flex-col min-w-0">
+    
+    <!-- Topbar -->
+    <header class="bg-yellow-400 border-b-2 border-yellow-500 sticky top-0 z-30 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button id="btn-toggle-side" class="lg:hidden p-2 rounded-xl bg-yellow-300 text-stone-900">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          </button>
+          <div class="flex items-center gap-2">
+            <span class="text-2xl select-none">🍌</span>
+            <span class="font-black text-lg text-stone-900">CONVERSOR BANANAL <span class="text-xs bg-stone-900 text-yellow-300 px-2 py-0.5 rounded-full ml-1">OFFLINE</span></span>
+          </div>
+        </div>
+        <div class="text-xs font-bold text-stone-800 bg-yellow-300 px-3 py-1.5 rounded-xl border border-yellow-500/40">
+          Zero Instalação • Roda 100% no Navegador
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-10">
+      
+      <!-- Banner Central -->
+      <section class="text-center mb-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-200 text-yellow-950 text-xs font-black mb-3">
+          <span>⚡</span> Conversões em tempo real via HTML5 Canvas, FileReader e APIs nativas
+        </div>
+        <h1 class="text-3xl sm:text-5xl font-black text-stone-900 leading-tight">
+          Descasque e converta arquivos <span class="text-yellow-600 underline">instantaneamente</span>
+        </h1>
+        <p class="text-xs sm:text-base text-stone-600 max-w-xl mx-auto mt-2">
+          Seus dados não saem do seu computador. Alta privacidade e velocidade instantânea.
+        </p>
+      </section>
+
+      <!-- Dropzone Principal -->
+      <section class="mb-10">
+        <div id="dropzone" class="bg-white hover:bg-yellow-50/70 border-3 border-dashed border-yellow-400 hover:border-yellow-500 rounded-3xl p-8 sm:p-14 text-center cursor-pointer transition shadow-sm hover:shadow-md">
+          <input type="file" id="file-input" multiple class="hidden">
+          
+          <div class="w-20 h-20 mx-auto rounded-3xl bg-yellow-200 flex items-center justify-center text-4xl shadow-inner mb-4 select-none">
+            🍌
+          </div>
+
+          <h3 class="text-lg sm:text-xl font-black text-stone-900">
+            Arraste seus arquivos aqui ou clique para selecionar
+          </h3>
+          <p class="text-xs text-stone-500 mt-1 mb-4">
+            Suporta imagens (PNG, JPG, WEBP, BMP, GIF), dados (CSV, JSON) e documentos de texto (TXT, MD)
+          </p>
+
+          <button type="button" onclick="document.getElementById('file-input').click()" class="px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-stone-950 font-black rounded-xl shadow-md transition transform active:scale-95 text-sm">
+            Selecionar do Computador
+          </button>
+        </div>
+      </section>
+
+      <!-- Lista de Arquivos para Conversão -->
+      <section id="queue-section" class="space-y-4 mb-10 hidden">
+        <div class="flex items-center justify-between">
+          <h3 class="font-black text-stone-900 text-lg flex items-center gap-2">
+            <span>🍌</span> Arquivos Prontos para Conversão
+          </h3>
+          <button id="btn-clear-queue" class="text-xs font-bold text-stone-500 hover:text-red-600">Limpar Lista</button>
+        </div>
+
+        <div id="files-list" class="space-y-3"></div>
+
+        <div class="bg-yellow-100/80 border border-yellow-300 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="text-xs text-stone-700 font-medium">
+            💡 Você pode converter arquivos individualmente ou todos de uma vez.
+          </div>
+          <button id="btn-convert-all" class="w-full sm:w-auto px-7 py-3 bg-stone-900 hover:bg-stone-800 text-yellow-300 font-black rounded-xl shadow-md transition transform active:scale-95 text-sm flex items-center justify-center gap-2">
+            <span>Converter Todos</span>
+            <span>🍌</span>
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="bg-stone-900 text-stone-400 text-xs py-8 border-t-4 border-yellow-400 text-center">
+      <p>&copy; Conversor Bananal 🍌 • Versão Standalone Offline • Nenhum dado é enviado para servidores externos.</p>
+    </footer>
+
+  </div>
+
+  <!-- Container de Toasts -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4"></div>
+
+  <!-- Modal Universal -->
+  <div id="modal-root" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs hidden">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl border-2 border-yellow-400 overflow-hidden text-stone-800">
+      <div class="bg-yellow-400 p-4 flex items-center gap-3">
+        <span class="text-2xl">🍌</span>
+        <h3 id="modal-title" class="font-bold text-stone-900 flex-1">Aviso Bananal</h3>
+        <button id="modal-close-x" class="text-stone-800 font-black text-xl leading-none">&times;</button>
+      </div>
+      <div class="p-6">
+        <p id="modal-msg" class="text-sm text-stone-600 leading-relaxed"></p>
+      </div>
+      <div class="bg-stone-50 px-6 py-3 border-t border-yellow-100 flex justify-end gap-2">
+        <button id="modal-cancel" class="px-4 py-2 text-xs font-semibold rounded-lg text-stone-600 hover:bg-stone-200">Cancelar</button>
+        <button id="modal-confirm" class="px-5 py-2 text-xs font-bold rounded-lg bg-yellow-400 text-stone-900 shadow-sm hover:bg-yellow-500">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lógica Client-side em JavaScript Puro -->
+  <script>
+    // Gerenciador de Toast
+    function showToast(msg, type = 'success') {
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = `p-4 rounded-xl shadow-lg border text-xs font-bold pointer-events-auto flex items-center gap-3 transition-all duration-300 ${
+        type === 'error' ? 'bg-red-50 border-red-300 text-red-900' : 'bg-yellow-50 border-yellow-400 text-yellow-950'
+      }`;
+      t.innerHTML = `<span>${type === 'error' ? '⚠️' : '🍌'}</span><span class="flex-1">${msg}</span>`;
+      c.appendChild(t);
+      setTimeout(() => {
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 300);
+      }, 4000);
+    }
+
+    // Modal Universal
+    function customConfirm(msg, title = 'Confirmação') {
+      return new Promise((resolve) => {
+        const root = document.getElementById('modal-root');
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-msg').textContent = msg;
+        const btnOk = document.getElementById('modal-confirm');
+        const btnCancel = document.getElementById('modal-cancel');
+        const btnX = document.getElementById('modal-close-x');
+        btnCancel.classList.remove('hidden');
+
+        root.classList.remove('hidden');
+
+        function done(val) {
+          root.classList.add('hidden');
+          btnOk.onclick = null;
+          btnCancel.onclick = null;
+          btnX.onclick = null;
+          resolve(val);
+        }
+
+        btnOk.onclick = () => done(true);
+        btnCancel.onclick = () => done(false);
+        btnX.onclick = () => done(false);
+      });
+    }
+
+    // Gerenciador de Sidebar
+    const side = document.getElementById('sidebar');
+    const overlay = document.getElementById('side-overlay');
+    document.getElementById('btn-toggle-side').onclick = () => {
+      side.classList.remove('-translate-x-full');
+      overlay.classList.remove('hidden');
+    };
+    function closeSide() {
+      side.classList.add('-translate-x-full');
+      overlay.classList.add('hidden');
+    }
+    document.getElementById('btn-close-side').onclick = closeSide;
+    overlay.onclick = closeSide;
+
+    // Fila de Arquivos
+    let queue = [];
+    let localHistory = JSON.parse(localStorage.getItem('bananal_history') || '[]');
+
+    function saveLocalHistory(item) {
+      localHistory.unshift(item);
+      if (localHistory.length > 30) localHistory.pop();
+      localStorage.setItem('bananal_history', JSON.stringify(localHistory));
+      renderLocalHistory();
+    }
+
+    function renderLocalHistory() {
+      const c = document.getElementById('local-history-container');
+      if (localHistory.length === 0) {
+        c.innerHTML = '<div class="text-center py-8 text-stone-400">Nenhuma conversão offline recente.</div>';
+        return;
+      }
+      c.innerHTML = localHistory.map(h => `
+        <div class="p-2.5 bg-white rounded-xl border border-yellow-200 shadow-xs flex items-center justify-between">
+          <div class="truncate flex-1 min-w-0 mr-2">
+            <div class="font-bold text-stone-900 truncate">${h.name}</div>
+            <div class="text-[10px] text-stone-500">${h.from} ➔ ${h.to} • ${h.time}</div>
+          </div>
+          <a href="${h.url}" download="${h.dlName}" class="p-1.5 bg-yellow-300 rounded-lg text-stone-900 font-bold hover:bg-yellow-400">⬇</a>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('btn-clear-local-hist').onclick = async () => {
+      if (await customConfirm('Deseja limpar todo o histórico local salvo no navegador?', 'Limpar')) {
+        localHistory = [];
+        localStorage.removeItem('bananal_history');
+        renderLocalHistory();
+        showToast('Histórico offline limpo!');
+      }
+    };
+
+    // Drag & Drop
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('file-input');
+
+    ['dragenter', 'dragover'].forEach(e => dropzone.addEventListener(e, (ev) => {
+      ev.preventDefault();
+      dropzone.classList.add('dropzone-active');
+    }));
+    ['dragleave', 'drop'].forEach(e => dropzone.addEventListener(e, (ev) => {
+      ev.preventDefault();
+      dropzone.classList.remove('dropzone-active');
+    }));
+    dropzone.addEventListener('drop', (e) => {
+      if (e.dataTransfer.files) handleFiles(Array.from(e.dataTransfer.files));
+    });
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files) handleFiles(Array.from(fileInput.files));
+    });
+
+    function getExt(n) {
+      return (n.split('.').pop() || '').toLowerCase();
+    }
+
+    function getSuggestions(ext) {
+      const img = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'];
+      if (img.includes(ext)) return ['webp', 'png', 'jpg', 'bmp', 'base64'];
+      if (ext === 'csv') return ['json', 'html', 'txt'];
+      if (ext === 'json') return ['csv', 'html', 'txt'];
+      if (ext === 'txt') return ['html', 'json'];
+      if (ext === 'md') return ['html', 'txt'];
+      return ['txt'];
+    }
+
+    function handleFiles(files) {
+      files.forEach(f => {
+        const ext = getExt(f.name);
+        const item = {
+          id: 'f_' + Math.random().toString(36).substr(2, 9),
+          file: f,
+          name: f.name,
+          size: (f.size / 1024).toFixed(1) + ' KB',
+          ext: ext,
+          targets: getSuggestions(ext),
+          target: getSuggestions(ext)[0] || 'txt',
+          status: 'ready', // ready, converting, done, error
+          downloadUrl: null,
+          convertedName: null
+        };
+        queue.push(item);
+      });
+      renderQueue();
+    }
+
+    function renderQueue() {
+      const sec = document.getElementById('queue-section');
+      const list = document.getElementById('files-list');
+      if (queue.length === 0) {
+        sec.classList.add('hidden');
+        return;
+      }
+      sec.classList.remove('hidden');
+
+      list.innerHTML = queue.map(item => `
+        <div id="${item.id}" class="p-4 bg-white rounded-2xl border-2 border-yellow-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <span class="text-2xl select-none">🍌</span>
+            <div class="truncate">
+              <h4 class="font-bold text-stone-900 text-sm truncate">${item.name}</h4>
+              <p class="text-xs text-stone-500">${item.size} • <span class="uppercase font-bold text-yellow-900">${item.ext}</span></p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+            ${item.status === 'ready' ? `
+              <select onchange="updateTarget('${item.id}', this.value)" class="text-xs font-bold bg-yellow-50 border border-yellow-300 rounded-xl px-3 py-2 text-stone-800">
+                ${item.targets.map(t => `<option value="${t}" ${t === item.target ? 'selected' : ''}>➔ ${t.toUpperCase()}</option>`).join('')}
+              </select>
+              <button onclick="convertItem('${item.id}')" class="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-stone-950 font-black rounded-xl text-xs shadow-xs">
+                Converter
+              </button>
+            ` : item.status === 'converting' ? `
+              <span class="text-xs font-bold text-yellow-800 animate-pulse">Convertendo no navegador...</span>
+            ` : item.status === 'done' ? `
+              <a href="${item.downloadUrl}" download="${item.convertedName}" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-xs flex items-center gap-1">
+                <span>Baixar</span> ⬇
+              </a>
+            ` : `
+              <span class="text-xs font-bold text-red-600">Erro</span>
+            `}
+            <button onclick="removeItem('${item.id}')" class="p-2 text-stone-400 hover:text-red-500">✕</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    window.updateTarget = (id, val) => {
+      const it = queue.find(q => q.id === id);
+      if (it) it.target = val;
+    };
+
+    window.removeItem = (id) => {
+      queue = queue.filter(q => q.id !== id);
+      renderQueue();
+    };
+
+    document.getElementById('btn-clear-queue').onclick = () => {
+      queue = [];
+      renderQueue();
+    };
+
+    // Motor de Conversão Client-Side (Canvas, FileReader)
+    window.convertItem = async (id) => {
+      const item = queue.find(q => q.id === id);
+      if (!item) return;
+
+      item.status = 'converting';
+      renderQueue();
+
+      try {
+        const { blob, ext } = await processClientConversion(item.file, item.ext, item.target);
+        const baseName = item.name.substring(0, item.name.lastIndexOf('.')) || item.name;
+        item.convertedName = baseName + '.' + ext;
+        item.downloadUrl = URL.createObjectURL(blob);
+        item.status = 'done';
+        
+        saveLocalHistory({
+          name: item.name,
+          dlName: item.convertedName,
+          from: item.ext.toUpperCase(),
+          to: ext.toUpperCase(),
+          url: item.downloadUrl,
+          time: new Date().toLocaleTimeString().slice(0, 5)
+        });
+
+        showToast(`🍌 ${item.name} convertido com sucesso!`);
+      } catch (err) {
+        item.status = 'error';
+        showToast(err.message || 'Erro na conversão client-side', 'error');
+      }
+
+      renderQueue();
+    };
+
+    document.getElementById('btn-convert-all').onclick = async () => {
+      const ready = queue.filter(q => q.status === 'ready');
+      if (ready.length === 0) {
+        showToast('Nenhum arquivo pendente para conversão.', 'error');
+        return;
+      }
+      for (const it of ready) {
+        await window.convertItem(it.id);
+      }
+    };
+
+    function processClientConversion(file, from, to) {
+      return new Promise((resolve, reject) => {
+        // Conversão de Imagens via HTML5 Canvas
+        const imgTypes = ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'];
+        if (imgTypes.includes(from) && imgTypes.includes(to)) {
+          const img = new Image();
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.width;
+              canvas.height = img.height;
+              const ctx = canvas.getContext('2d');
+
+              if (to === 'jpg' || to === 'jpeg') {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+              }
+              ctx.drawImage(img, 0, 0);
+
+              const mime = (to === 'jpg' || to === 'jpeg') ? 'image/jpeg' : (to === 'webp' ? 'image/webp' : 'image/png');
+              canvas.toBlob((blob) => {
+                if (blob) resolve({ blob, ext: to });
+                else reject(new Error('Falha ao exportar do Canvas.'));
+              }, mime, 0.92);
+            };
+            img.onerror = () => reject(new Error('Erro ao decodificar imagem no navegador.'));
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+          return;
+        }
+
+        // Imagem para Base64
+        if (imgTypes.includes(from) && to === 'base64') {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const blob = new Blob([reader.result], { type: 'text/plain;charset=utf-8' });
+            resolve({ blob, ext: 'txt' });
+          };
+          reader.readAsDataURL(file);
+          return;
+        }
+
+        // CSV para JSON
+        if (from === 'csv' && to === 'json') {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const lines = reader.result.split(/\r?\n/).filter(l => l.trim() !== '');
+            if (lines.length === 0) return reject(new Error('CSV vazio.'));
+            const delim = lines[0].includes(';') ? ';' : ',';
+            const headers = lines[0].split(delim).map(h => h.trim().replace(/^"|"$/g, ''));
+            const data = lines.slice(1).map(line => {
+              const vals = line.split(delim).map(v => v.trim().replace(/^"|"$/g, ''));
+              let obj = {};
+              headers.forEach((h, i) => obj[h || `col_${i}`] = vals[i] || '');
+              return obj;
+            });
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            resolve({ blob, ext: 'json' });
+          };
+          reader.readAsText(file);
+          return;
+        }
+
+        // JSON para CSV
+        if (from === 'json' && to === 'csv') {
+          const reader = new FileReader();
+          reader.onload = () => {
+            try {
+              let data = JSON.parse(reader.result);
+              if (!Array.isArray(data)) data = [data];
+              const keys = Object.keys(data[0] || {});
+              const csv = [keys.join(';')]
+                .concat(data.map(row => keys.map(k => `"${(row[k] || '').toString().replace(/"/g, '""')}"`).join(';')))
+                .join('\r\n');
+              const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8' });
+              resolve({ blob, ext: 'csv' });
+            } catch (err) {
+              reject(new Error('JSON malformado.'));
+            }
+          };
+          reader.readAsText(file);
+          return;
+        }
+
+        // Texto / Markdown para HTML
+        if ((from === 'txt' || from === 'md') && to === 'html') {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Convertido Bananal</title><style>body{font-family:sans-serif;padding:2rem;background:#fefce8;color:#1c1917;line-height:1.6;}</style></head><body>${reader.result.replace(/\n/g, '<br>')}</body></html>`;
+            const blob = new Blob([html], { type: 'text/html' });
+            resolve({ blob, ext: 'html' });
+          };
+          reader.readAsText(file);
+          return;
+        }
+
+        reject(new Error(`Conversão de .${from} para .${to} não suportada no modo offline.`));
+      });
+    }
+
+    window.triggerQuickFormat = (from, to) => {
+      document.getElementById('file-input').click();
+    };
+
+    renderLocalHistory();
+  </script>
+</body>
+</html>

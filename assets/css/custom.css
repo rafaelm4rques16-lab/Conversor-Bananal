@@ -1,0 +1,116 @@
+@charset "UTF-8";
+/**
+ * Estilos Customizados - Conversor Bananal
+ * Paleta de cores inspirada em bananajobs.com.br e layout Convertio
+ */
+
+:root {
+  --banana-50:  #fefce8;
+  --banana-100: #fef9c3;
+  --banana-200: #fef08a;
+  --banana-300: #fde047;
+  --banana-400: #facc15;
+  --banana-500: #eab308;
+  --banana-600: #ca8a04;
+  --banana-700: #a16207;
+  --banana-800: #854d0e;
+  --banana-900: #713f12;
+  --banana-dark: #18181b;
+}
+
+/* Scrollbar com tema amarelado suave */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #fef9c3;
+}
+::-webkit-scrollbar-thumb {
+  background: #eab308;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ca8a04;
+}
+
+/* Área de Drop com animação ao arrastar arquivo */
+.dropzone-active {
+  border-color: #ca8a04 !important;
+  background-color: #fef9c3 !important;
+  transform: scale(1.01);
+  box-shadow: 0 10px 25px -5px rgba(234, 179, 8, 0.35);
+}
+
+/* Balanço sutil do mascote ao passar o mouse */
+@keyframes banana-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+.hover-wiggle:hover {
+  animation: banana-wiggle 0.5s ease-in-out infinite alternate;
+}
+
+/* Barra de progresso amarela listrada pulsante */
+.banana-progress-striped {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.25) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.25) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1rem 1rem;
+  animation: banana-stripes 1s linear infinite;
+}
+
+@keyframes banana-stripes {
+  from { background-position: 1rem 0; }
+  to { background-position: 0 0; }
+}
+
+/* Destaque tipo selo de qualidade BananaJobs */
+.badge-banana {
+  background-color: #fde047;
+  color: #713f12;
+  border: 1.5px solid #ca8a04;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Animação para o Toast */
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.toast-enter {
+  animation: toast-slide-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Animação para Modais */
+@keyframes modal-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-enter {
+  animation: modal-scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
