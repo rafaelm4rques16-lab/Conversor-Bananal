@@ -1,0 +1,26 @@
+# Conversor Bananal 🍌
+
+## Objetivos
+Converter o tipo de arquivo para outro, inserindo o arquivo original no site, tipo https://convertio.co/pt/
+
+### Stack Tecnológico
+- Backend: PHP estruturado com sessões nativas
+- Banco de dados: MySQL (PDO para segurança)
+- Frontend: HTML5, PHP, CSS, Tailwind CSS
+
+#### Regras de negócio (CORE)
+- Manter palheta de cores amarelada e elementos gráficos de banana pelo site, semelhante a https://bananajobs.com.br/
+- Função de enviar o arquivo semelhante a do https://convertio.co/pt/ onde o usuário pode tanto jogar o arquivo no site (Drag & Drop), quanto enviar por um botão.
+- Usuário seleciona o arquivo, o sistema detecta o tipo do arquivo, o sistema faz sugestões de tipo de arquivo que ele pode fazer a conversão.
+- Após o usuário escolher o tipo de arquivo o sistema transforma o arquivo para o tipo escolhido.
+- Além disso, como no https://convertio.co/pt/ deve ter um menu do lado (Side Menu com categorias de conversão e atalhos rápidos).
+- Tratar senhas de usuários estritamente com hash bcrypt (`password_hash` e `password_verify`).
+- O sistema deve ter uma página de históricos e manter sempre os logs de qualquer alteração feita por qualquer usuário, para auditorias futuras.
+
+##### Regras Globais
+- Use sempre PDO para conexão e queries no MySQL para evitar SQL Injections
+- Mantenha o código limpo e comente apenas lógicas complexas.
+- Separe os arquivos de forma lógica: um arquivo para conexão com a base (`bd.php`) e scripts de backend isolados e views em HTML5/PHP, nunca faça o sistema como um monolito, deixe sempre separados todas as regras para facilitar os futuros upgrades.
+- Estilize as telas em Tailwind de forma responsiva priorizando o Mobile-First.
+- Retorne sempre as mensagens de erros de forma clara na interface para o usuário (TOAST).
+- Sempre trate as mensagens de caixa de mensagens nativas do navegador em um MODAL customizado.

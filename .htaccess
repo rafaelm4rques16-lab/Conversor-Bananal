@@ -1,0 +1,8 @@
+# Conversor Bananal 🍌 - Configuração Apache para InfinityFree e Servidores Web
+DirectoryIndex index.php index.html
+
+# Previne listagem aberta de diretórios
+Options -Indexes
+
+# Define codificação padrão UTF-8
+AddDefaultCharset UTF-8
