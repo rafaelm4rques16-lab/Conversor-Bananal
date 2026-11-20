@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor Bananal Pro 🍌 • Versão Standalone Offline</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍌</text></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulse-wave { 0%, 100% { height: 6px; } 50% { height: 26px; } }
+    .audio-bar { animation: pulse-wave 1s ease-in-out infinite; }
+    .audio-bar:nth-child(2) { animation-delay: 0.2s; }
+    .audio-bar:nth-child(3) { animation-delay: 0.4s; }
+    .audio-bar:nth-child(4) { animation-delay: 0.1s; }
+    .dropzone-active { border-color: #ca8a04 !important; background-color: #fef9c3 !important; }
+  </style>
+</head>
+<body class="bg-yellow-50/50 text-stone-900 font-sans min-h-screen flex flex-col selection:bg-yellow-300">
+
+  <!-- Header -->
+  <header class="bg-yellow-400 border-b-2 border-yellow-500 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-3xl select-none">🍌</span>
+        <span class="text-xl font-black text-stone-900">BANANAL PRO <span class="text-xs bg-stone-900 text-yellow-300 px-2.5 py-0.5 rounded-full ml-1">OFFLINE</span></span>
+      </div>
+      <div class="text-xs font-bold text-stone-800 bg-yellow-300 px-3 py-1.5 rounded-xl border border-yellow-500/40">
+        100% Client-Side • Sem Servidor Necessário
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-5xl w-full mx-auto px-4 py-10 space-y-12">
+    
+    <!-- Hero -->
+    <div class="text-center max-w-2xl mx-auto">
+      <h1 class="text-3xl sm:text-5xl font-black text-stone-900 leading-tight">
+        Conversão e Transcrição Instantânea 🍌
+      </h1>
+      <p class="text-xs sm:text-sm text-stone-600 mt-2">
+        Converta imagens, documentos, áudios e transcreva sua voz em tempo real diretamente no seu navegador.
+      </p>
+    </div>
+
+    <!-- Seletor de Ferramenta Offline -->
+    <div class="flex justify-center gap-2 flex-wrap">
+      <button onclick="showTab('converter')" id="btn-tab-c" class="px-5 py-2.5 rounded-2xl bg-yellow-400 font-black text-xs shadow-xs text-stone-950">
+        🚀 Conversor Universal
+      </button>
+      <button onclick="showTab('mic')" id="btn-tab-m" class="px-5 py-2.5 rounded-2xl bg-white border border-yellow-300 font-bold text-xs text-stone-800 hover:bg-yellow-100">
+        🎙️ Transcrição de Voz ao Vivo
+      </button>
+      <button onclick="showTab('subs')" id="btn-tab-s" class="px-5 py-2.5 rounded-2xl bg-white border border-yellow-300 font-bold text-xs text-stone-800 hover:bg-yellow-100">
+        💬 Gerador de Legendas (SRT)
+      </button>
+    </div>
+
+    <!-- Aba 1: Conversor Universal -->
+    <div id="tab-converter" class="space-y-6">
+      <div id="dropzone" class="bg-white border-3 border-dashed border-yellow-400 rounded-3xl p-10 text-center cursor-pointer hover:bg-yellow-50/70 transition">
+        <input type="file" id="file-in" multiple class="hidden">
+        <span class="text-5xl block mb-2 select-none">🍌</span>
+        <h3 class="font-black text-lg text-stone-900">Arraste seus arquivos aqui</h3>
+        <p class="text-xs text-stone-500 mt-1 mb-4">Imagens, dados (CSV, JSON), textos (TXT, MD)</p>
+        <button type="button" onclick="document.getElementById('file-in').click()" class="px-6 py-3 bg-yellow-400 hover:bg-yellow-500 font-black rounded-xl text-xs text-stone-950 shadow-md">
+          Selecionar Arquivo
+        </button>
+      </div>
+
+      <div id="q-box" class="space-y-3 hidden"></div>
+    </div>
+
+    <!-- Aba 2: Microfone ao Vivo -->
+    <div id="tab-mic" class="bg-white rounded-3xl border-2 border-yellow-300 p-6 sm:p-8 space-y-5 hidden">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button id="btn-rec-start" class="px-5 py-2.5 bg-yellow-400 hover:bg-yellow-500 font-black text-xs rounded-xl shadow-xs text-stone-950 flex items-center gap-2">
+            <span>Iniciar Gravação</span> 🎙️
+          </button>
+          <button id="btn-rec-stop" class="hidden px-5 py-2.5 bg-red-500 text-white font-black text-xs rounded-xl shadow-xs animate-pulse">
+            Pausar
+          </button>
+          <button id="btn-rec-clear" class="px-4 py-2 bg-stone-100 font-bold text-xs rounded-xl text-stone-700">Limpar</button>
+        </div>
+        <div id="wave-box" class="hidden flex items-end gap-1 h-6">
+          <span class="w-1.5 bg-yellow-500 rounded-full audio-bar"></span>
+          <span class="w-1.5 bg-yellow-500 rounded-full audio-bar"></span>
+          <span class="w-1.5 bg-yellow-500 rounded-full audio-bar"></span>
+        </div>
+      </div>
+      <textarea id="live-txt" rows="8" placeholder="Clique em 'Iniciar Gravação' e comece a falar..." class="w-full p-4 rounded-2xl bg-stone-50 border border-yellow-200 text-sm font-medium focus:outline-none"></textarea>
+      <div class="flex justify-end gap-2">
+        <button onclick="downloadLiveText('txt')" class="px-4 py-2 bg-stone-900 text-yellow-300 font-bold text-xs rounded-xl">Baixar TXT ⬇</button>
+        <button onclick="downloadLiveText('srt')" class="px-4 py-2 bg-yellow-400 text-stone-950 font-black text-xs rounded-xl">Baixar Legendas SRT ⬇</button>
+      </div>
+    </div>
+
+    <!-- Aba 3: Legendas -->
+    <div id="tab-subs" class="bg-white rounded-3xl border-2 border-yellow-300 p-6 sm:p-8 space-y-5 hidden">
+      <h3 class="font-black text-stone-900 text-base">Gerar Legendas Cronometradas</h3>
+      <textarea id="srt-in" rows="6" placeholder="Cole seu texto para gerar o arquivo .SRT..." class="w-full p-4 rounded-2xl bg-stone-50 border border-yellow-200 text-sm"></textarea>
+      <div class="flex justify-between items-center">
+        <button onclick="genSrt()" class="px-6 py-3 bg-yellow-400 font-black text-xs rounded-xl text-stone-950 shadow-sm">Gerar SRT 🍌</button>
+        <button onclick="dlSrt()" class="px-5 py-2.5 bg-stone-900 text-yellow-300 font-bold text-xs rounded-xl">Baixar .SRT ⬇</button>
+      </div>
+      <textarea id="srt-out" readonly rows="6" class="w-full p-4 rounded-2xl bg-stone-900 text-yellow-300 font-mono text-xs hidden"></textarea>
+    </div>
+
+  </main>
+
+  <footer class="bg-stone-900 text-stone-400 text-xs py-6 text-center border-t-4 border-yellow-400">
+    Conversor Bananal Pro 🍌 • Versão Standalone Offline
+  </footer>
+
+  <script>
+    function showTab(t) {
+      ['converter', 'mic', 'subs'].forEach(id => {
+        document.getElementById('tab-' + id).classList.add('hidden');
+        document.getElementById('btn-tab-' + id[0]).className = 'px-5 py-2.5 rounded-2xl bg-white border border-yellow-300 font-bold text-xs text-stone-800 hover:bg-yellow-100';
+      });
+      document.getElementById('tab-' + t).classList.remove('hidden');
+      document.getElementById('btn-tab-' + t[0]).className = 'px-5 py-2.5 rounded-2xl bg-yellow-400 font-black text-xs shadow-xs text-stone-950';
+    }
+
+    // Microfone
+    const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let rec = null;
+    if (Speech) {
+      rec = new Speech();
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.lang = 'pt-BR';
+      rec.onresult = (e) => {
+        for (let i = e.resultIndex; i < e.results.length; ++i) {
+          if (e.results[i].isFinal) {
+            document.getElementById('live-txt').value += `[${new Date().toLocaleTimeString().slice(0,5)}] ` + e.results[i][0].transcript.trim() + "\n";
+          }
+        }
+      };
+    }
+
+    document.getElementById('btn-rec-start').onclick = () => {
+      if (!rec) return alert('Reconhecimento de voz não suportado neste navegador.');
+      rec.start();
+      document.getElementById('btn-rec-start').classList.add('hidden');
+      document.getElementById('btn-rec-stop').classList.remove('hidden');
+      document.getElementById('wave-box').classList.remove('hidden');
+    };
+    document.getElementById('btn-rec-stop').onclick = () => {
+      if (rec) rec.stop();
+      document.getElementById('btn-rec-start').classList.remove('hidden');
+      document.getElementById('btn-rec-stop').classList.add('hidden');
+      document.getElementById('wave-box').classList.add('hidden');
+    };
+    document.getElementById('btn-rec-clear').onclick = () => {
+      document.getElementById('live-txt').value = '';
+    };
+
+    function downloadLiveText(fmt) {
+      const txt = document.getElementById('live-txt').value.trim();
+      if (!txt) return alert('Texto vazio.');
+      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'fala_bananal.' + fmt;
+      a.click();
+    }
+
+    // Legendas
+    let srtData = '';
+    function genSrt() {
+      const raw = document.getElementById('srt-in').value.trim();
+      if (!raw) return alert('Insira texto.');
+      const lines = raw.split("\n").filter(l => l.trim());
+      srtData = lines.map((l, i) => `${i+1}\r\n00:00:${pad(i*4)},000 --> 00:00:${pad((i*4)+3)},500\r\n${l}\r\n`).join("\r\n");
+      const out = document.getElementById('srt-out');
+      out.value = srtData;
+      out.classList.remove('hidden');
+    }
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function dlSrt() {
+      if (!srtData) genSrt();
+      const b = new Blob([srtData], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(b);
+      a.download = 'legendas.srt';
+      a.click();
+    }
+
+    // Conversor de Imagens e Dados Client-side
+    const drop = document.getElementById('dropzone');
+    const fileIn = document.getElementById('file-in');
+    ['dragenter', 'dragover'].forEach(e => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add('dropzone-active'); }));
+    ['dragleave', 'drop'].forEach(e => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.remove('dropzone-active'); }));
+    drop.addEventListener('drop', (e) => { if (e.dataTransfer.files) handleFiles(Array.from(e.dataTransfer.files)); });
+    fileIn.addEventListener('change', () => { if (fileIn.files) handleFiles(Array.from(fileIn.files)); });
+
+    function handleFiles(files) {
+      const box = document.getElementById('q-box');
+      box.classList.remove('hidden');
+      files.forEach(f => {
+        const ext = (f.name.split('.').pop()||'').toLowerCase();
+        const card = document.createElement('div');
+        card.className = 'p-4 bg-white rounded-2xl border-2 border-yellow-200 flex items-center justify-between gap-3 shadow-xs';
+        card.innerHTML = `
+          <div class="truncate">
+            <h4 class="font-bold text-sm text-stone-900 truncate">${f.name}</h4>
+            <span class="text-xs uppercase font-bold text-yellow-900 bg-yellow-200 px-1.5 py-0.5 rounded">${ext}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="convFile(this, '${f.name}', '${ext}')" class="px-4 py-2 bg-yellow-400 font-black rounded-xl text-xs text-stone-950">Converter</button>
+          </div>
+        `;
+        card.fileData = f;
+        box.appendChild(card);
+      });
+    }
+
+    async function convFile(btn, name, ext) {
+      const card = btn.closest('.p-4');
+      const file = card.fileData;
+      btn.textContent = 'Processando...';
+
+      if (['png', 'jpg', 'jpeg', 'webp', 'bmp'].includes(ext)) {
+        const img = new Image();
+        const r = new FileReader();
+        r.onload = (e) => {
+          img.onload = () => {
+            const c = document.createElement('canvas');
+            c.width = img.width; c.height = img.height;
+            const ctx = c.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            c.toBlob((b) => {
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(b);
+              a.download = name.replace(/\.[^/.]+$/, "") + ".webp";
+              a.className = 'px-4 py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs';
+              a.textContent = 'Baixar .WEBP ⬇';
+              btn.replaceWith(a);
+            }, 'image/webp', 0.9);
+          };
+          img.src = e.target.result;
+        };
+        r.readAsDataURL(file);
+      } else {
+        const r = new FileReader();
+        r.onload = () => {
+          const b = new Blob([r.result], { type: 'text/html' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(b);
+          a.download = name + ".html";
+          a.className = 'px-4 py-2 bg-emerald-500 text-white font-bold rounded-xl text-xs';
+          a.textContent = 'Baixar HTML ⬇';
+          btn.replaceWith(a);
+        };
+        r.readAsText(file);
+      }
+    }
+  </script>
+</body>
+</html>

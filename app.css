@@ -1,0 +1,70 @@
+@charset "UTF-8";
+/**
+ * Estilos Principais - Conversor Bananal Pro
+ * Paleta amarelada vibrante inspirada em bananajobs.com.br e layout Convertio
+ */
+
+:root {
+  --banana-400: #facc15;
+  --banana-500: #eab308;
+  --banana-600: #ca8a04;
+  --banana-900: #713f12;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #fef9c3;
+}
+::-webkit-scrollbar-thumb {
+  background: #eab308;
+  border-radius: 4px;
+}
+
+.dropzone-active {
+  border-color: #ca8a04 !important;
+  background-color: #fef9c3 !important;
+  transform: scale(1.01);
+  box-shadow: 0 10px 25px -5px rgba(234, 179, 8, 0.4);
+}
+
+@keyframes banana-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.hover-bounce:hover {
+  animation: banana-bounce 0.6s ease-in-out infinite;
+}
+
+@keyframes pulse-wave {
+  0%, 100% { height: 8px; }
+  50% { height: 32px; }
+}
+
+.audio-bar {
+  animation: pulse-wave 1.2s ease-in-out infinite;
+}
+.audio-bar:nth-child(2) { animation-delay: 0.2s; }
+.audio-bar:nth-child(3) { animation-delay: 0.4s; }
+.audio-bar:nth-child(4) { animation-delay: 0.1s; }
+.audio-bar:nth-child(5) { animation-delay: 0.5s; }
+
+/* Animações de Toast e Modal */
+@keyframes slide-down {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.toast-anim {
+  animation: slide-down 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes scale-in {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.modal-anim {
+  animation: scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
